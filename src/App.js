@@ -1,26 +1,40 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import Login from "./pages/login";
+import Profile from "./pages/profile";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { Switch, Redirect, Route } from "react-router-dom";
+import { connect } from "react-redux";
 
-function App() {
+import { logout } from "./actions/auth";
+import { bindActionCreators } from "redux";
+
+const App = (props) => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <button
+        onClick={() => {
+          props.logout();
+        }}
+      >
+        Logout
+      </button>
+      <Switch>
+        <Route exact path="/login/" component={Login} />
+        <ProtectedRoute exact path="/profile" component={Profile} />
+        <Redirect exact from="/" to="/login" />
+      </Switch>
     </div>
   );
-}
+};
 
-export default App;
+const mapStateToProps = (state) => {
+  return {
+    ...state.ui,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return bindActionCreators({ logout }, dispatch);
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
