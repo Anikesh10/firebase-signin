@@ -22,7 +22,7 @@ const ProtectedRoute = ({ component: Component, ...rest }) => (
 
 const mapStateToProps = (state) => {
   return {
-    ...state.ui,
+    ...state.auth,
   };
 };
 

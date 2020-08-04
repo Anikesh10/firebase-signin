@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import { Link, Redirect } from "react-router-dom";
-import { login } from "../../actions/auth";
+import { signUp } from "../../actions/auth";
 import { bindActionCreators } from "redux";
 import { PageWrapper, FormWrapper, Heading, HelperText } from "./styles";
 import Button from "../../components/Button";
@@ -13,14 +13,44 @@ import Loader from "../../components/Loader";
 const INITIAL_STATE = {
   form: [
     {
+      key: "firstName",
+      label: "First Name*",
+      value: "",
+      error: "",
+    },
+    {
+      key: "lastName",
+      label: "Last Name*",
+      value: "",
+      error: "",
+    },
+    {
+      key: "age",
+      label: "Age*",
+      value: "",
+      error: "",
+    },
+    {
+      key: "phone",
+      label: "Phone number*",
+      value: "",
+      error: "",
+    },
+    {
+      key: "address",
+      label: "Address*",
+      value: "",
+      error: "",
+    },
+    {
       key: "email",
-      label: "Email",
+      label: "Email*",
       value: "",
       error: "",
     },
     {
       key: "password",
-      label: "Password",
+      label: "Password*",
       type: "password",
       value: "",
       error: "",
@@ -28,8 +58,9 @@ const INITIAL_STATE = {
   ],
 };
 
-const Login = (props) => {
+const SignUp = (props) => {
   let [form, setFormData] = useState(INITIAL_STATE.form);
+
   //  Get validation error
   let getValidationError = (value, key) => {
     if (ValidationUtils.checkIfEmptyField(value))
@@ -37,36 +68,61 @@ const Login = (props) => {
     else if (ValidationUtils.checkIfspecialChar(value))
       return "Please do not enter special character.";
     else if (key === "email" && !ValidationUtils.validateEmail(value))
-      return "Please enter a valid email.";
+      return "Please enter a valid email address.";
+    else if (key === "phone" && ValidationUtils.checkContactNumber(value))
+      return "Please enter a valid phone number.";
+    else if (key === "age" && !ValidationUtils.validateNumber(value))
+      return "Please enter a valid age.";
   };
 
   // Handle Input change
-  let handleInputChange = (value, index, key) => {
+  let handleInputChange = (value, index) => {
     let formClone = JSON.parse(JSON.stringify(form));
     formClone[index]["value"] = value;
-    formClone[index]["error"] = getValidationError(value, key);
+    formClone[index]["error"] = getValidationError(
+      value,
+      formClone[index]["key"]
+    );
     setFormData(formClone);
   };
 
   // Check if any input field has error
   let checkIfValid = () => {
     let flag = true;
+    let formClone = JSON.parse(JSON.stringify(form));
+
     if (Array.isArray(form)) {
       for (let i = 0; i < form.length; i++) {
-        if (form[i]["error"]) flag = false;
+        let error = getValidationError(form[i]["value"], form[i]["key"]);
+        if (error) {
+          flag = false;
+          formClone[i]["error"] = error;
+        }
       }
+
+      setFormData(formClone);
     }
     return flag;
   };
 
+  let formatDataForApi = (form = []) => {
+    let response = {};
+    if (Array.isArray(form)) {
+      form.forEach((eachElement) => {
+        response = {
+          ...response,
+          [eachElement.key]: eachElement.value,
+        };
+      });
+    }
+    return response;
+  };
+
   // Handle user login
-  let handleLogin = () => {
-    let data = {
-      email: form[0].value,
-      password: form[1].value,
-    };
+  let handleSignUp = () => {
     if (checkIfValid()) {
-      props.login(data);
+      let data = formatDataForApi(form);
+      props.signUp(data);
     }
   };
 
@@ -79,7 +135,7 @@ const Login = (props) => {
     <PageWrapper>
       {props.ui.isLoading && <Loader />}
       <FormWrapper>
-        <Heading>Login</Heading>
+        <Heading>Sign Up</Heading>
         {Array.isArray(form)
           ? form.map((eachInput, index) => {
               let { key, label, type, value, error } = eachInput;
@@ -90,14 +146,14 @@ const Login = (props) => {
                   type={type}
                   value={value}
                   error={error}
-                  handleInput={(value) => handleInputChange(value, index, key)}
+                  handleInput={(value) => handleInputChange(value, index)}
                 />
               );
             })
           : null}
-        <Button title="Login" label="Login" action={handleLogin} />
+        <Button title="Sign Up" label="Sign Up" action={handleSignUp} />
         <HelperText>
-          Don’t have an account? <Link to="/signup">Sign Up</Link>
+          Already have an account? <Link to="/login">Sign In</Link>
         </HelperText>
       </FormWrapper>
     </PageWrapper>
@@ -111,7 +167,7 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({ login }, dispatch);
+  return bindActionCreators({ signUp }, dispatch);
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(SignUp);

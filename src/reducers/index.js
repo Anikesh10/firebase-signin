@@ -1,6 +1,6 @@
 import { combineReducers } from "redux";
-import { reducer as notifications } from "react-notification-system-redux";
 
 import ui from "./ui";
+import auth from "./auth";
 
-export default combineReducers({ ui, notifications });
+export default combineReducers({ ui, auth });
