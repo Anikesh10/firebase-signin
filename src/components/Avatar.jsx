@@ -5,37 +5,39 @@ import styled from "styled-components";
 const Avatar = (props) => {
   let inputRef = useRef();
   let [imageSrc, setImage] = useState("");
-
-  // File select callback
-  const handleFileSelect = (e) => {
-    if (e.target.files && e.target.files.length) {
-      getImageUrl(e.target.files[0]);
-    }
-  };
-
-  // Get Image url on file selection
-  const getImageUrl = (file) => {
-    let url = "";
-    const reader = new FileReader();
-
-    reader.addEventListener(
-      "load",
-      function () {
-        // convert image file to base64 string
-        url = reader.result;
-        setImage(url);
-        if (props.onFileSelect) props.onFileSelect(file, url);
-      },
-      false
-    );
-
-    if (file) {
-      reader.readAsDataURL(file);
-    }
-  };
+  const { onFileSelect } = props;
 
   useEffect(() => {
     let inputElement = inputRef.current;
+
+    // Get Image url on file selection
+    const getImageUrl = (file) => {
+      let url = "";
+      const reader = new FileReader();
+
+      reader.addEventListener(
+        "load",
+        function () {
+          // convert image file to base64 string
+          url = reader.result;
+          setImage(url);
+          if (onFileSelect) onFileSelect(file, url);
+        },
+        false
+      );
+
+      if (file) {
+        reader.readAsDataURL(file);
+      }
+    };
+
+    // File select callback
+    const handleFileSelect = (e) => {
+      if (e.target.files && e.target.files.length) {
+        getImageUrl(e.target.files[0]);
+      }
+    };
+
     if (inputElement) {
       inputElement.addEventListener("change", handleFileSelect);
     }
@@ -43,7 +45,7 @@ const Avatar = (props) => {
     return () => {
       inputElement.removeEventListener("change", handleFileSelect);
     };
-  }, []);
+  }, [onFileSelect]);
 
   const handleClick = () => {
     if (inputRef.current) {
