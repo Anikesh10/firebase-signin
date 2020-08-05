@@ -23,7 +23,6 @@ export default function match(state = initialState, action) {
       };
 
     case types.RECEIVE_LOGIN:
-      console.log("action.payload", action.payload);
       return {
         ...state,
         ui: {

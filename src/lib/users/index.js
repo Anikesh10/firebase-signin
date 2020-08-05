@@ -5,13 +5,10 @@ class Users {
     if (!user) return;
     const userRef = firestore.doc(`users/${user.uid}`);
     const snapshot = await userRef.get();
-    console.log("user", user.uid, userRef, snapshot);
     if (!snapshot.exists) {
-      console.log("user hit");
-
       const { email, firstName, lastName, age, address, photoURL } = user;
       try {
-        let responseUser = await userRef.set({
+        await userRef.set({
           firstName,
           lastName,
           email,
@@ -20,7 +17,6 @@ class Users {
           photoURL,
           ...additionalData,
         });
-        console.log("user response", responseUser, user);
       } catch (error) {
         console.error("Error creating user document", error);
         return {

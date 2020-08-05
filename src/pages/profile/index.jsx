@@ -29,37 +29,37 @@ const INITIAL_STATE = {
     },
     {
       key: "firstName",
-      label: "First Name",
+      label: "First Name*",
       value: "",
       error: "",
     },
     {
       key: "lastName",
-      label: "Last Name",
+      label: "Last Name*",
       value: "",
       error: "",
     },
     {
       key: "age",
-      label: "Age",
+      label: "Age*",
       value: "",
       error: "",
     },
     {
       key: "phone",
-      label: "Phone number",
+      label: "Phone number*",
       value: "",
       error: "",
     },
     {
       key: "address",
-      label: "Address",
+      label: "Address*",
       value: "",
       error: "",
     },
     {
       key: "email",
-      label: "Email",
+      label: "Email*",
       value: "",
       error: "",
       disabled: true,
@@ -74,8 +74,19 @@ class Profile extends Component {
   }
 
   componentDidMount() {
+    this.checkIfDataExist();
     this.setProfileData();
   }
+
+  checkIfDataExist = () => {
+    if (!this.props.data.uid) {
+      this.props.signOut();
+      toastUtils.handleToast({
+        operation: "error",
+        message: "This user has been deleted.",
+      });
+    }
+  };
 
   setProfileData = () => {
     let { data } = this.props;
@@ -92,7 +103,7 @@ class Profile extends Component {
   };
 
   getValidationError = (value, key) => {
-    if (ValidationUtils.checkIfEmptyField(value))
+    if (ValidationUtils.checkIfEmptyField(value.trim()))
       return "Please fill the field.";
     else if (ValidationUtils.checkIfspecialChar(value))
       return "Please do not enter special character.";
@@ -117,18 +128,6 @@ class Profile extends Component {
     });
   };
 
-  // Check if any input field has error
-  checkIfValid = () => {
-    let { form } = this.state;
-    let flag = true;
-    if (Array.isArray(form)) {
-      for (let i = 0; i < form.length; i++) {
-        if (form[i]["error"]) flag = false;
-      }
-    }
-    return flag;
-  };
-
   // Format data for save api
   formatDataForApi = (form = [], previousData) => {
     let response = {};
@@ -146,12 +145,38 @@ class Profile extends Component {
     return response;
   };
 
+  // Check if any input field has error
+  checkIfValid = () => {
+    let flag = true;
+    let { form } = this.state;
+    let formClone = JSON.parse(JSON.stringify(form));
+
+    if (Array.isArray(form)) {
+      for (let i = 0; i < form.length; i++) {
+        let error = this.getValidationError(form[i]["value"], form[i]["key"]);
+        if (error) {
+          flag = false;
+          formClone[i]["error"] = error;
+        }
+      }
+
+      this.setState({ form: formClone });
+    }
+    return flag;
+  };
+
   // Save formatted data
   handleSave = () => {
     let { form } = this.state;
     let data = this.formatDataForApi(form, this.props.data);
-    if (this.props.data.uid) {
+    if (this.props.data.uid && !this.checkIfValid()) {
       this.props.updateProfile(this.props.data.uid, data);
+    } else {
+      toastUtils.handleToast({
+        operation: "error",
+        message: "Please do not leave empty fields.",
+        autoClose: 1000,
+      });
     }
   };
 
@@ -173,9 +198,9 @@ class Profile extends Component {
     if (Array.isArray(form) && form.length) {
       form.forEach((eachField) => {
         if (eachField.key === "firstName") {
-          fullName = `${eachField.value}`;
+          fullName = `${eachField.value || ""}`;
         } else if (eachField.key === "lastName") {
-          fullName = `${fullName} ${eachField.value}`;
+          fullName = `${fullName} ${eachField.value || ""}`;
         }
       });
     }
@@ -214,10 +239,15 @@ class Profile extends Component {
         <HeaderWrapper>
           <div>
             <Heading>Profile</Heading>
-            <HeadingHelper>
-              Hello, <Name>{this._getFullName()}. </Name>
-              Edit your profile information below.
-            </HeadingHelper>
+            {
+              <HeadingHelper>
+                Hello{" "}
+                {this._getFullName().trim() ? (
+                  <Name>{this._getFullName()}</Name>
+                ) : null}
+                . Edit your profile information below.
+              </HeadingHelper>
+            }
           </div>
           <ButtonWrapper>
             <Button

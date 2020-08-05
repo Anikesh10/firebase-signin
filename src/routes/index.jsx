@@ -11,6 +11,7 @@ const Routes = (props) => (
     <Route exact path="/signup" component={SignUp} />
     <ProtectedRoute exact path="/profile" component={Profile} />
     <Redirect exact from="/" to="/login" />
+    <Redirect to="/login" />
   </Switch>
 );
 

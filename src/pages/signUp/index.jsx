@@ -63,7 +63,7 @@ const SignUp = (props) => {
 
   //  Get validation error
   let getValidationError = (value, key) => {
-    if (ValidationUtils.checkIfEmptyField(value))
+    if (ValidationUtils.checkIfEmptyField(value.trim()))
       return "Please fill the field.";
     else if (ValidationUtils.checkIfspecialChar(value))
       return "Please do not enter special character.";

@@ -2,7 +2,6 @@ import React from "react";
 import Styled from "styled-components";
 
 const ToastComponent = (props) => {
-  console.log("hit");
   return (
     <ToastComponentWrapper>
       <ToastComponentHeading>

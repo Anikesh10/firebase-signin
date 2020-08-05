@@ -46,6 +46,12 @@ const ButtonWrapper = styled.div`
   border-radius: 25px;
   overflow: hidden;
   margin: 0 auto;
+
+  &:hover {
+    > div {
+      left: 0;
+    }
+  }
 `;
 
 const ButtonLayer = styled.div`
